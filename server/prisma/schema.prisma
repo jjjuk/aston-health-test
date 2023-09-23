@@ -1,0 +1,89 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["fullTextSearch", "fullTextIndex"]
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id       Int     @id @default(autoincrement()) @db.UnsignedInt
+  email    String  @unique @db.VarChar(255)
+  password String  @db.VarChar(255)
+  isAdmin  Boolean @default(false)
+  name     String? @db.VarChar(100)
+  Edit     Edit[]  @relation("user_edit")
+}
+
+model Edit {
+  id        Int      @id @default(autoincrement()) @db.UnsignedInt
+  userId    Int      @db.UnsignedInt
+  date      DateTime
+  model     String
+  operation String
+  arguments Json
+
+  User User @relation("user_edit", fields: [userId], references: [id])
+}
+
+model Patient {
+  id                Int      @id @default(autoincrement()) @db.UnsignedInt
+  name              String   @db.VarChar(100)
+  surname           String   @db.VarChar(100)
+  patronymic        String   @db.VarChar(100)
+  diagnosis         String   @db.Text
+  birthdate         DateTime
+  ageOnRegistration Int      @db.UnsignedSmallInt()
+  gender            Int      @db.UnsignedSmallInt() //1 - male, 2 - female
+  code              String   @db.VarChar(11)
+
+  ContactInfo ContactInfo[] @relation("patient_contact_info")
+  Disease     Disease[]     @relation("patient_disease")
+
+  @@index([code])
+  @@index([birthdate(sort: Desc)])
+  @@fulltext([name, surname, patronymic])
+}
+
+model ContactInfo {
+  patientId    Int     @id @unique @db.UnsignedInt
+  address      String? @db.Text
+  fedDist      String? @db.VarChar(20)
+  region       String? @db.VarChar(120)
+  area         String? @db.VarChar(120)
+  city         String? @db.VarChar(120)
+  settlement   String? @db.VarChar(120)
+  email        String? @db.VarChar(255)
+  phones       String  @db.Text
+  familyPhones String  @db.Text
+
+  Patient Patient @relation("patient_contact_info", references: [id], fields: [patientId])
+
+  @@index([region(sort: Asc)])
+  @@fulltext([address])
+}
+
+model Disease {
+  id          Int      @id @default(autoincrement()) @db.UnsignedInt
+  patientId   Int      @db.UnsignedInt
+  diagnosedAt DateTime
+  name        String   @db.VarChar(255)
+
+  Patient Patient @relation("patient_disease", references: [id], fields: [patientId])
+
+  @@fulltext([name])
+}
+
+model Analisys {
+  id          Int       @id @default(autoincrement()) @db.UnsignedInt
+  patientId   Int       @db.UnsignedInt
+  lab         String    @db.VarChar(255)
+  collectedAt DateTime
+  completedAt DateTime?
+  completedIn DateTime?
+  result      String?   @db.Text
+
+  @@index([completedIn(sort: Asc)])
+}
