@@ -1,3 +1,5 @@
-const argon2 = require('argon2');
+const { parse } = require('date-fns');
 
-argon2.hash('                ').then(console.log);
+const date = parse('23121997', 'ddMMyyyy', new Date());
+
+console.log(date.toISOString());

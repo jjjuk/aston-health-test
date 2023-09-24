@@ -33,8 +33,8 @@ model Patient {
   name              String   @db.VarChar(100)
   surname           String   @db.VarChar(100)
   patronymic        String   @db.VarChar(100)
-  diagnosis         String   @db.Text
-  birthdate         DateTime
+  // diagnosis         String   @db.Text
+  birthDate         DateTime
   ageOnRegistration Int      @db.UnsignedSmallInt()
   gender            Int      @db.UnsignedSmallInt() //1 - male, 2 - female
   code              String   @db.VarChar(11)
@@ -43,7 +43,7 @@ model Patient {
   Disease     Disease[]     @relation("patient_disease")
 
   @@index([code])
-  @@index([birthdate(sort: Desc)])
+  @@index([birthDate(sort: Desc)])
   @@fulltext([name, surname, patronymic])
 }
 

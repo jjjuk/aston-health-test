@@ -1,6 +1,3 @@
-import dotenv from 'dotenv';
-dotenv.config();
-
 import { getEnv } from 'src/utils';
 
 const cfg = {
