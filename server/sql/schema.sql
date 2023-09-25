@@ -3,61 +3,18 @@ CREATE DATABASE IF NOT EXISTS `test`;
 USE `test`;
 
 --
--- Table structure for table `Analysis`
+-- Table structure for table `User`
 --
-DROP TABLE IF EXISTS `Analysis`;
+DROP TABLE IF EXISTS `User`;
 
-CREATE TABLE `Analysis` (
+CREATE TABLE `User` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
-  `patientId` int unsigned NOT NULL,
-  `lab` varchar(255) NOT NULL,
-  `collectedAt` datetime(3) NOT NULL,
-  `completedAt` datetime(3) DEFAULT NULL,
-  `completedIn` int unsigned DEFAULT NULL,
-  `result` text,
+  `email` varchar(255) NOT NULL,
+  `password` varchar(255) NOT NULL,
+  `isAdmin` tinyint(1) NOT NULL DEFAULT '0',
+  `name` varchar(100) DEFAULT NULL,
   PRIMARY KEY (`id`),
-  KEY `Analysis_completedIn_idx` (`completedIn`),
-  KEY `Analysis_patientId_fkey` (`patientId`),
-  CONSTRAINT `Analysis_patientId_fkey` FOREIGN KEY (`patientId`) REFERENCES `Patient` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE
-);
-
---
--- Table structure for table `ContactInfo`
---
-DROP TABLE IF EXISTS `ContactInfo`;
-
-CREATE TABLE `ContactInfo` (
-  `patientId` int unsigned NOT NULL,
-  `address` text,
-  `fedDist` varchar(20) DEFAULT NULL,
-  `region` varchar(120) DEFAULT NULL,
-  `area` varchar(120) DEFAULT NULL,
-  `city` varchar(120) DEFAULT NULL,
-  `settlement` varchar(120) DEFAULT NULL,
-  `email` varchar(255) DEFAULT NULL,
-  `phones` text NOT NULL,
-  `familyPhones` text NOT NULL,
-  PRIMARY KEY (`patientId`),
-  UNIQUE KEY `ContactInfo_patientId_key` (`patientId`),
-  KEY `ContactInfo_region_idx` (`region`),
-  FULLTEXT KEY `ContactInfo_address_idx` (`address`),
-  CONSTRAINT `ContactInfo_patientId_fkey` FOREIGN KEY (`patientId`) REFERENCES `Patient` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE
-);
-
---
--- Table structure for table `Disease`
---
-DROP TABLE IF EXISTS `Disease`;
-
-CREATE TABLE `Disease` (
-  `id` int unsigned NOT NULL AUTO_INCREMENT,
-  `patientId` int unsigned NOT NULL,
-  `diagnosedAt` datetime(3) NOT NULL,
-  `name` varchar(255) NOT NULL,
-  PRIMARY KEY (`id`),
-  KEY `Disease_patientId_fkey` (`patientId`),
-  FULLTEXT KEY `Disease_name_idx` (`name`),
-  CONSTRAINT `Disease_patientId_fkey` FOREIGN KEY (`patientId`) REFERENCES `Patient` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE
+  UNIQUE KEY `User_email_key` (`email`)
 );
 
 --
@@ -74,7 +31,7 @@ CREATE TABLE `Edit` (
   `arguments` json NOT NULL,
   PRIMARY KEY (`id`),
   KEY `Edit_userId_fkey` (`userId`),
-  CONSTRAINT `Edit_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `User` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE
+  CONSTRAINT `Edit_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `User` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 --
@@ -98,16 +55,59 @@ CREATE TABLE `Patient` (
 );
 
 --
--- Table structure for table `User`
+-- Table structure for table `ContactInfo`
 --
-DROP TABLE IF EXISTS `User`;
+DROP TABLE IF EXISTS `ContactInfo`;
 
-CREATE TABLE `User` (
+CREATE TABLE `ContactInfo` (
+  `patientId` int unsigned NOT NULL,
+  `address` text,
+  `fedDist` varchar(20) DEFAULT NULL,
+  `region` varchar(120) DEFAULT NULL,
+  `area` varchar(120) DEFAULT NULL,
+  `city` varchar(120) DEFAULT NULL,
+  `settlement` varchar(120) DEFAULT NULL,
+  `email` varchar(255) DEFAULT NULL,
+  `phones` text NOT NULL,
+  `familyPhones` text NOT NULL,
+  PRIMARY KEY (`patientId`),
+  UNIQUE KEY `ContactInfo_patientId_key` (`patientId`),
+  KEY `ContactInfo_region_idx` (`region`),
+  FULLTEXT KEY `ContactInfo_address_idx` (`address`),
+  CONSTRAINT `ContactInfo_patientId_fkey` FOREIGN KEY (`patientId`) REFERENCES `Patient` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+--
+-- Table structure for table `Disease`
+--
+DROP TABLE IF EXISTS `Disease`;
+
+CREATE TABLE `Disease` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
-  `email` varchar(255) NOT NULL,
-  `password` varchar(255) NOT NULL,
-  `isAdmin` tinyint(1) NOT NULL DEFAULT '0',
-  `name` varchar(100) DEFAULT NULL,
+  `patientId` int unsigned NOT NULL,
+  `diagnosedAt` datetime(3) NOT NULL,
+  `name` varchar(255) NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `User_email_key` (`email`)
+  KEY `Disease_patientId_fkey` (`patientId`),
+  FULLTEXT KEY `Disease_name_idx` (`name`),
+  CONSTRAINT `Disease_patientId_fkey` FOREIGN KEY (`patientId`) REFERENCES `Patient` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+--
+-- Table structure for table `Analysis`
+--
+DROP TABLE IF EXISTS `Analysis`;
+
+CREATE TABLE `Analysis` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `patientId` int unsigned NOT NULL,
+  `lab` varchar(255) NOT NULL,
+  `collectedAt` datetime(3) NOT NULL,
+  `completedAt` datetime(3) DEFAULT NULL,
+  `completedIn` int unsigned DEFAULT NULL,
+  `result` text,
+  PRIMARY KEY (`id`),
+  KEY `Analysis_completedIn_idx` (`completedIn`),
+  KEY `Analysis_patientId_fkey` (`patientId`),
+  CONSTRAINT `Analysis_patientId_fkey` FOREIGN KEY (`patientId`) REFERENCES `Patient` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 );

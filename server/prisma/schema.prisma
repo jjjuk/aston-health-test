@@ -26,7 +26,7 @@ model Edit {
   operation String
   arguments Json
 
-  User User @relation("user_edit", fields: [userId], references: [id])
+  User User @relation("user_edit", fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Patient {
@@ -61,7 +61,7 @@ model ContactInfo {
   phones       String  @db.Text
   familyPhones String  @db.Text
 
-  Patient Patient @relation("patient_contact_info", references: [id], fields: [patientId])
+  Patient Patient @relation("patient_contact_info", references: [id], fields: [patientId], onDelete: Cascade)
 
   @@index([region(sort: Asc)])
   @@fulltext([address])
@@ -73,7 +73,7 @@ model Disease {
   diagnosedAt DateTime
   name        String   @db.VarChar(255)
 
-  Patient Patient @relation("patient_disease", references: [id], fields: [patientId])
+  Patient Patient @relation("patient_disease", references: [id], fields: [patientId], onDelete: Cascade)
 
   @@fulltext([name])
 }
@@ -87,7 +87,7 @@ model Analysis {
   completedIn Int?      @db.UnsignedInt //days
   result      String?   @db.Text
 
-  Patient Patient @relation("patient_analysis", references: [id], fields: [patientId])
+  Patient Patient @relation("patient_analysis", references: [id], fields: [patientId], onDelete: Cascade)
 
   @@index([completedIn(sort: Asc)])
 }
