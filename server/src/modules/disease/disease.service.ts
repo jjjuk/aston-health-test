@@ -1,26 +1,37 @@
 import { Injectable } from '@nestjs/common';
 import { CreateDiseaseDto } from './dto/create-disease.dto';
 import { UpdateDiseaseDto } from './dto/update-disease.dto';
+import { Prisma } from '@prisma/client';
+import { PrismaService } from 'src/common/providers/prisma.service';
 
 @Injectable()
 export class DiseaseService {
-  create(createDiseaseDto: CreateDiseaseDto) {
-    return 'This action adds a new disease';
+  constructor(private readonly prisma: PrismaService) {}
+
+  create<S extends Prisma.DiseaseSelect>(dto: CreateDiseaseDto, select?: S) {
+    return this.prisma.disease.create({ data: dto, select });
   }
 
-  findAll() {
-    return `This action returns all disease`;
+  fulltextSearch<S extends Prisma.DiseaseSelect>(query: string, select?: S) {
+    return this.prisma.disease.findMany({
+      where: { name: { search: query } },
+      select,
+    });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} disease`;
+  findUnique<S extends Prisma.DiseaseSelect>(id: number, select?: S) {
+    return this.prisma.disease.findUnique({ where: { id }, select });
   }
 
-  update(id: number, updateDiseaseDto: UpdateDiseaseDto) {
-    return `This action updates a #${id} disease`;
+  update<S extends Prisma.DiseaseSelect>(
+    id: number,
+    dto: UpdateDiseaseDto,
+    select?: S,
+  ) {
+    return this.prisma.disease.update({ where: { id }, data: dto, select });
   }
 
   remove(id: number) {
-    return `This action removes a #${id} disease`;
+    return this.prisma.disease.delete({ where: { id }, select: { id: true } });
   }
 }

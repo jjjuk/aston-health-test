@@ -1,11 +1,12 @@
 import { Injectable } from '@nestjs/common';
 
-import { differenceInYears, format } from 'date-fns';
+import { differenceInYears } from 'date-fns';
 
 import { CreatePatientDto } from './dto/create-patient.dto';
 import { UpdatePatientDto } from './dto/update-patient.dto';
 import { PrismaService } from 'src/common/providers/prisma.service';
 import { Prisma } from '@prisma/client';
+import { createPatientCode } from 'src/utils/patient-code';
 
 @Injectable()
 export class PatientService {
@@ -15,11 +16,6 @@ export class PatientService {
     const birthDate = new Date(dto.birthDate);
     const ageOnRegistration = differenceInYears(Date.now(), birthDate);
 
-    let code = dto.surname.charAt(0);
-    code += dto.name.charAt(0);
-    code += dto.patronymic.charAt(0);
-    code += format(birthDate, 'ddMMyyyy');
-
     return this.prisma.patient.create({
       data: {
         name: dto.name,
@@ -28,7 +24,12 @@ export class PatientService {
         birthDate,
         ageOnRegistration,
         gender: dto.gender,
-        code,
+        code: createPatientCode(
+          dto.surname,
+          dto.name,
+          dto.patronymic,
+          birthDate,
+        ),
       },
       select,
     });
@@ -50,19 +51,31 @@ export class PatientService {
 
     let code: string | undefined = undefined;
 
-    if (dto.birthDate || dto.name || dto.patronymic || dto.surname) {
-      code = dto.surname.charAt(0);
-      code += dto.name.charAt(0);
-      code += dto.patronymic.charAt(0);
-      if (!birthDate) {
-        const { birthDate: prevBirthDate } =
-          await this.prisma.patient.findUniqueOrThrow({
-            where: { id },
-            select: { birthDate: true },
-          });
-        code += format(prevBirthDate, 'ddMMyyyy');
+    if (birthDate || dto.name || dto.patronymic || dto.surname) {
+      if (birthDate && dto.name && dto.patronymic && dto.surname) {
+        code = createPatientCode(
+          dto.surname,
+          dto.name,
+          dto.patronymic,
+          birthDate,
+        );
       } else {
-        code += format(birthDate, 'ddMMyyyy');
+        const prev = await this.prisma.patient.findUniqueOrThrow({
+          where: { id },
+          select: {
+            birthDate: !birthDate,
+            surname: !dto.surname,
+            name: !dto.name,
+            patronymic: !dto.patronymic,
+          },
+        });
+
+        code = createPatientCode(
+          dto.surname ? dto.surname : prev.surname,
+          dto.name ? dto.name : prev.name,
+          dto.patronymic ? dto.patronymic : prev.patronymic,
+          birthDate ? birthDate : prev.birthDate,
+        );
       }
     }
 

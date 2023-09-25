@@ -16,30 +16,20 @@ export class ContactInfoController {
   constructor(private readonly contactInfoService: ContactInfoService) {}
 
   @Post()
-  create(@Body() createContactInfoDto: CreateContactInfoDto) {
-    return this.contactInfoService.create(createContactInfoDto);
+  create(@Param('id') patientId: string, @Body() dto: CreateContactInfoDto) {
+    return this.contactInfoService.create(+patientId, dto);
   }
 
-  @Get()
-  findAll() {
-    return this.contactInfoService.findAll();
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.contactInfoService.findOne(+id);
-  }
-
-  @Patch(':id')
+  @Patch()
   update(
-    @Param('id') id: string,
+    @Param('id') patientId: string,
     @Body() updateContactInfoDto: UpdateContactInfoDto,
   ) {
-    return this.contactInfoService.update(+id, updateContactInfoDto);
+    return this.contactInfoService.update(+patientId, updateContactInfoDto);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.contactInfoService.remove(+id);
+  @Delete()
+  remove(@Param('id') patientId: string) {
+    return this.contactInfoService.remove(+patientId);
   }
 }

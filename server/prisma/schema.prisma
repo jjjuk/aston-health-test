@@ -14,7 +14,8 @@ model User {
   password String  @db.VarChar(255)
   isAdmin  Boolean @default(false)
   name     String? @db.VarChar(100)
-  Edit     Edit[]  @relation("user_edit")
+
+  Edit Edit[] @relation("user_edit")
 }
 
 model Edit {
@@ -30,8 +31,8 @@ model Edit {
 
 model Patient {
   id                Int      @id @default(autoincrement()) @db.UnsignedInt
-  name              String   @db.VarChar(100)
   surname           String   @db.VarChar(100)
+  name              String   @db.VarChar(100)
   patronymic        String   @db.VarChar(100)
   // diagnosis         String   @db.Text
   birthDate         DateTime
@@ -39,8 +40,9 @@ model Patient {
   gender            Int      @db.UnsignedSmallInt() //1 - male, 2 - female
   code              String   @db.VarChar(11)
 
-  ContactInfo ContactInfo[] @relation("patient_contact_info")
-  Disease     Disease[]     @relation("patient_disease")
+  ContactInfo ContactInfo? @relation("patient_contact_info")
+  Diseases    Disease[]    @relation("patient_disease")
+  Analisys    Analysis[]   @relation("patient_analysis")
 
   @@index([code])
   @@index([birthDate(sort: Desc)])
@@ -76,14 +78,16 @@ model Disease {
   @@fulltext([name])
 }
 
-model Analisys {
+model Analysis {
   id          Int       @id @default(autoincrement()) @db.UnsignedInt
   patientId   Int       @db.UnsignedInt
   lab         String    @db.VarChar(255)
   collectedAt DateTime
   completedAt DateTime?
-  completedIn DateTime?
+  completedIn Int?      @db.UnsignedInt //days
   result      String?   @db.Text
+
+  Patient Patient @relation("patient_analysis", references: [id], fields: [patientId])
 
   @@index([completedIn(sort: Asc)])
 }

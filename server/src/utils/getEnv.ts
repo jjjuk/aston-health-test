@@ -16,9 +16,11 @@ export const getEnv = <T extends EnvTypes>(key: string, type: T) => {
   if (!value) {
     exitWithError(`env variable ${key} is not set`);
   }
-  if (type === 'number' && isNaN(Number(value))) {
-    exitWithError(`env variable ${key} is not a number, got '${value}'`);
+  if (type === 'number') {
+    isNaN(Number(value)) &&
+      exitWithError(`env variable ${key} is not a number, got '${value}'`);
+
+    return Number(value) as GetEnvReturnType<T>;
   }
   if (type === 'string') return value as GetEnvReturnType<T>;
-  else return Number(value) as GetEnvReturnType<T>;
 };

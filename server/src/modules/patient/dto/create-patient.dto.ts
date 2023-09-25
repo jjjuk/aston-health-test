@@ -1,14 +1,14 @@
-import { IsDateString, IsInt, Matches, Max, Min } from 'class-validator';
-import { nameRegex } from 'src/utils/regex';
+import { IsDateString, IsInt, Max, Min } from 'class-validator';
+import { IsValidName } from 'src/common/decorators/valid-name.decorator';
 
 export class CreatePatientDto {
-  @Matches(nameRegex)
+  @IsValidName()
   name: string;
 
-  @Matches(nameRegex)
+  @IsValidName()
   surname: string;
 
-  @Matches(nameRegex)
+  @IsValidName()
   patronymic: string;
 
   @IsDateString()

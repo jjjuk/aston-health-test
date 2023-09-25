@@ -6,6 +6,7 @@ import {
   Patch,
   Param,
   Delete,
+  Query,
 } from '@nestjs/common';
 import { DiseaseService } from './disease.service';
 import { CreateDiseaseDto } from './dto/create-disease.dto';
@@ -21,13 +22,13 @@ export class DiseaseController {
   }
 
   @Get()
-  findAll() {
-    return this.diseaseService.findAll();
+  find(@Query('q') query: string) {
+    return this.diseaseService.fulltextSearch(query);
   }
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.diseaseService.findOne(+id);
+    return this.diseaseService.findUnique(+id);
   }
 
   @Patch(':id')
