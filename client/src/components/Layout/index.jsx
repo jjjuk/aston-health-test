@@ -8,9 +8,12 @@ import Typography from '@mui/joy/Typography'
 import Drawer from '@mui/joy/Drawer'
 import { UserContext } from '../../context/UserContext'
 import { LogoutOutlined } from '@mui/icons-material'
+import ModeToggle from '../ModeToggle'
+import useLocalStorage from '../../hooks/useLocalStorage'
 
 export default function Layout({ children }) {
   const [drawer, setDrawer] = useState(false)
+  const [, setToken] = useLocalStorage('token')
   const user = useContext(UserContext)
 
   return (
@@ -28,13 +31,12 @@ export default function Layout({ children }) {
             <Typography level="h4">Patients App</Typography>
           </Stack>
           <Stack direction="row" spacing={2} alignItems="center">
-            <Typography color="primary">{user.email}</Typography>
+            <Typography color="primary">{user.data.email}</Typography>
+            <ModeToggle />
             <Button
+              color="danger"
               variant="outlined"
-              onClick={() => {
-                localStorage.setItem('token', '')
-                window.location.reload() // по простому сбросить стейты
-              }}
+              onClick={() => setToken('')}
             >
               <LogoutOutlined />
             </Button>

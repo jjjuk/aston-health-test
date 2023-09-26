@@ -8,9 +8,12 @@ import Tab from '@mui/joy/Tab'
 
 import { useState } from 'react'
 import rest, { catchRestError } from '../../utils/rest'
+import ModeToggle from '../ModeToggle'
+import useLocalStorage from '../../hooks/useLocalStorage'
 
 export default function Auth() {
   const [kind, setKind] = useState('Login')
+  const [, setToken] = useLocalStorage('token')
 
   return (
     <div
@@ -21,6 +24,7 @@ export default function Auth() {
         minHeight: '100vh',
       }}
     >
+      <ModeToggle sx={{ position: 'absolute', top: 0, right: 0, m: 3 }} />
       <Sheet
         variant="outlined"
         sx={{
@@ -66,10 +70,7 @@ export default function Auth() {
             const data = Object.fromEntries(formData.entries())
             rest
               .post(`/auth/${kind.toLowerCase()}`, data)
-              .then((res) => {
-                localStorage.setItem('token', res.data)
-                window.location.reload()
-              })
+              .then((res) => setToken(res.data))
               .catch(catchRestError)
           }}
         >

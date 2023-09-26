@@ -31,6 +31,16 @@ export class ContactInfoService {
     });
   }
 
+  findUnique<S extends Prisma.ContactInfoSelect>(
+    patientId: number,
+    select?: S,
+  ) {
+    return this.prisma.contactInfo.findUnique({
+      where: { patientId },
+      select,
+    });
+  }
+
   remove(patientId: number) {
     return this.prisma.contactInfo.delete({
       where: { patientId },

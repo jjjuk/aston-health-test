@@ -13,14 +13,22 @@ const subscribe = (cb) => {
  * @returns {[string, (s: string) => void]}
  */
 export default function useLocalStorage(key) {
-  const setValue = useCallback(
-    (value) => {
-      localStorage.setItem(key, value)
-    },
-    [key]
-  )
-
   const value = useSyncExternalStore(subscribe, () => localStorage.getItem(key))
 
+  const setValue = useCallback(
+    (newValue) => {
+      localStorage.setItem(key, value)
+      window.dispatchEvent(
+        new StorageEvent('storage', {
+          storageArea: window.localStorage,
+          key,
+          oldValue: value,
+          newValue,
+          url: window.location.href,
+        })
+      )
+    },
+    [key, value]
+  )
   return [value, setValue]
 }

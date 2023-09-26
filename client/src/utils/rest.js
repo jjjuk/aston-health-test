@@ -12,7 +12,7 @@ rest.interceptors.request.use((config) => {
 
 export const catchRestError = (err) => {
   console.log(err)
-  window.alert(err?.response?.data?.message || 'error occurred')
+  window.alert(err?.response?.data?.message || err?.message || 'error occurred')
 }
 
 export default rest

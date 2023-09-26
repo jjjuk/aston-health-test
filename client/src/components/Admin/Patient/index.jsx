@@ -8,15 +8,16 @@ import SaveIcon from '@mui/icons-material/Save'
 import CancelIcon from '@mui/icons-material/Close'
 import {
   GridRowModes,
-  DataGrid,
+  DataGridPro,
   GridToolbarContainer,
   GridActionsCellItem,
   GridRowEditStopReasons,
-} from '@mui/x-data-grid'
+} from '@mui/x-data-grid-pro'
 import { randomId } from '@mui/x-data-grid-generator'
-import useGet from '../../hooks/useGet'
-import rest, { catchRestError } from '../../utils/rest'
+import useGet from '../../../hooks/useGet'
+import rest, { catchRestError } from '../../../utils/rest'
 import { mutate } from 'swr'
+import ContactInfo from './ContactInfo'
 
 const restPath = '/patient'
 
@@ -27,7 +28,16 @@ function EditToolbar(props) {
     const id = `create_${randomId()}`
     setRows((oldRows) => [
       ...oldRows,
-      { id, name: '', surname: '', patronymic: '', isNew: true },
+      {
+        id,
+        name: '',
+        surname: '',
+        patronymic: '',
+        gender: '',
+        ageOnRegistration: '',
+        code: '',
+        isNew: true,
+      },
     ])
     setRowModesModel((oldModel) => ({
       ...oldModel,
@@ -97,10 +107,9 @@ export default function Patient() {
       return createdRow
     } catch (err) {
       catchRestError(err)
+      if (newRow?.isNew) handleCancelClick(newRow.id)()
       return oldRow
     }
-
-    // setRows(rows.map((row) => (row.id === newRow.id ? updatedRow : row)))
   }
 
   const handleProcessRowUpdateError = ({ id }) => {
@@ -119,9 +128,30 @@ export default function Patient() {
       editable: false,
       valueGetter: ({ value, row }) => (row?.isNew ? 'TBD' : value),
     },
-    { field: 'surname', headerName: 'Фамилия', width: 120, editable: true },
-    { field: 'name', headerName: 'Имя', width: 120, editable: true },
-    { field: 'patronymic', headerName: 'Отчество', width: 120, editable: true },
+    {
+      field: 'surname',
+      headerName: 'Фамилия',
+      width: 120,
+      editable: true,
+      preProcessEditCellProps: (params) => {
+        return { ...params.props, error: !params.props.value }
+      },
+    },
+    {
+      field: 'name',
+      headerName: 'Имя',
+      width: 120,
+      editable: true,
+      preProcessEditCellProps: (params) => {
+        return { ...params.props, error: !params.props.value }
+      },
+    },
+    {
+      field: 'patronymic',
+      headerName: 'Отчество',
+      width: 120,
+      editable: true,
+    },
     {
       field: 'ageOnRegistration',
       headerName: 'Воз. Рег.',
@@ -135,14 +165,14 @@ export default function Patient() {
       field: 'birthDate',
       headerName: 'Родился',
       type: 'date',
-      width: 120,
+      width: 100,
       valueGetter: ({ value }) => new Date(value),
       editable: true,
     },
     {
       field: 'gender',
       headerName: 'Пол',
-      width: 80,
+      width: 60,
       editable: true,
       type: 'singleSelect',
       valueOptions: [
@@ -207,7 +237,9 @@ export default function Patient() {
     <Box
       sx={{
         height: 'calc(100vh - 70px)',
-        width: '100%',
+        marginLeft: 'auto',
+        marginRight: 'auto',
+        maxWidth: 960,
         '& .actions': {
           color: 'text.secondary',
         },
@@ -216,8 +248,9 @@ export default function Patient() {
         },
       }}
     >
-      <DataGrid
+      <DataGridPro
         rows={rows}
+        sx={{ backgroundColor: 'background.paper' }}
         columns={columns}
         editMode="row"
         rowModesModel={rowModesModel}
@@ -232,6 +265,12 @@ export default function Patient() {
         slotProps={{
           toolbar: { setRows, setRowModesModel },
         }}
+        getDetailPanelContent={({ row }) => (
+          <div style={{ paddingLeft: 48 }}>
+            <ContactInfo patientId={row.id} />
+          </div>
+        )}
+        getDetailPanelHeight={() => 'auto'}
         autoPageSize
       />
     </Box>

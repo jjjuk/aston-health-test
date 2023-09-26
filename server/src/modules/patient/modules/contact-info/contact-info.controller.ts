@@ -20,6 +20,11 @@ export class ContactInfoController {
     return this.contactInfoService.create(+patientId, dto);
   }
 
+  @Get()
+  findUnique(@Param('id') patientId: string) {
+    return this.contactInfoService.findUnique(+patientId);
+  }
+
   @Patch()
   update(
     @Param('id') patientId: string,

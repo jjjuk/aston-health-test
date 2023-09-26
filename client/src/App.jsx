@@ -1,18 +1,47 @@
-import { useContext } from 'react'
-import { UserContext } from './context/UserContext'
-import Layout from './components/Layout'
-import Auth from './components/Auth'
-import Admin from './components/Admin'
+import Pages from './components/Pages'
 
-function App() {
-  const user = useContext(UserContext)
-  return user ? (
-    <Layout>
-      <Admin />
-    </Layout>
-  ) : (
-    <Auth />
+import { SWRConfig } from 'swr'
+import swrMiddleware from './swrMiddleware.js'
+import CssBaseline from '@mui/joy/CssBaseline'
+
+import UserContextProvider from './context/UserContext.jsx'
+
+import {
+  experimental_extendTheme as materialExtendTheme,
+  Experimental_CssVarsProvider as MaterialCssVarsProvider,
+  THEME_ID as MATERIAL_THEME_ID,
+} from '@mui/material/styles'
+
+import { CssVarsProvider as JoyCssVarsProvider } from '@mui/joy/styles'
+
+const materialTheme = materialExtendTheme({
+  colorSchemes: {
+    dark: {
+      palette: {
+        background: {
+          paper: '#0b0d0e',
+          default: '#0b0d0e',
+          defaultChannel: '#0b0d0e',
+        },
+      },
+    },
+  },
+})
+
+export default function App() {
+  return (
+    <MaterialCssVarsProvider
+      modeStorageKey="joy-mode"
+      theme={{ [MATERIAL_THEME_ID]: materialTheme }}
+    >
+      <JoyCssVarsProvider>
+        <UserContextProvider>
+          <SWRConfig value={{ use: [swrMiddleware] }}>
+            <CssBaseline />
+            <Pages />
+          </SWRConfig>
+        </UserContextProvider>
+      </JoyCssVarsProvider>
+    </MaterialCssVarsProvider>
   )
 }
-
-export default App
