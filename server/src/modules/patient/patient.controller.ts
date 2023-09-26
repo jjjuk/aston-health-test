@@ -32,6 +32,11 @@ export class PatientController {
     return this.patientService.findUnique(+id);
   }
 
+  @Get()
+  findAll() {
+    return this.patientService.findAll();
+  }
+
   @Patch(':id')
   update(@Param('id') id: string, @Body() updatePatientDto: UpdatePatientDto) {
     return this.patientService.update(+id, updatePatientDto);

@@ -39,6 +39,10 @@ export class PatientService {
     return this.prisma.patient.findUnique({ where: { id }, select });
   }
 
+  findAll<S extends Prisma.PatientSelect>(select?: S) {
+    return this.prisma.patient.findMany({ select });
+  }
+
   async update<S extends Prisma.PatientSelect>(
     id: number,
     dto: UpdatePatientDto,

@@ -1,21 +1,29 @@
 import 'reflect-metadata';
 
 import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
+import { ValidationPipe } from '@nestjs/common';
 import {
   FastifyAdapter,
   NestFastifyApplication,
 } from '@nestjs/platform-fastify';
-import { ValidationPipe } from '@nestjs/common';
 import Fastify from 'fastify';
+import cors from '@fastify/cors';
+
+import { AppModule } from './app.module';
 import cfg from './config/app.config';
 
 export async function bootstrap() {
-  const fastify = Fastify().setReplySerializer(function (payload) {
+  const fastify = Fastify();
+
+  fastify.setReplySerializer(function (payload) {
     return JSON.stringify(payload, (_, value) =>
       // для тестового пойдет
       typeof value === 'bigint' ? Number(value) : value,
     );
+  });
+
+  fastify.register(cors, {
+    origin: '*',
   });
 
   const app = await NestFactory.create<NestFastifyApplication>(
