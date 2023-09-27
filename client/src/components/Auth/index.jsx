@@ -9,11 +9,11 @@ import Tab from '@mui/joy/Tab'
 import { useState } from 'react'
 import rest, { catchRestError } from '../../utils/rest'
 import ModeToggle from '../ModeToggle'
-import useLocalStorage from '../../hooks/useLocalStorage'
+import { useLocalStorage } from '../../hooks/useLocalStorage'
 
 export default function Auth() {
   const [kind, setKind] = useState('Login')
-  const [, setToken] = useLocalStorage('token')
+  const [,setToken] = useLocalStorage('token')
 
   return (
     <div

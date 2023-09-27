@@ -1,5 +1,4 @@
 import * as React from 'react'
-import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import AddIcon from '@mui/icons-material/Add'
 import EditIcon from '@mui/icons-material/Edit'
@@ -18,6 +17,7 @@ import useGet from '../../../hooks/useGet'
 import rest, { catchRestError } from '../../../utils/rest'
 import { mutate } from 'swr'
 import ContactInfo from './ContactInfo'
+import Sheet from '@mui/joy/Sheet'
 
 const restPath = '/patient'
 
@@ -234,9 +234,11 @@ export default function Patient() {
   ]
 
   return (
-    <Box
+    <Sheet
+      variant="soft"
       sx={{
-        height: 'calc(100vh - 70px)',
+        height: 'calc(100vh - 86px)',
+        my: 1,
         marginLeft: 'auto',
         marginRight: 'auto',
         maxWidth: 960,
@@ -250,7 +252,9 @@ export default function Patient() {
     >
       <DataGridPro
         rows={rows}
-        sx={{ backgroundColor: 'background.paper' }}
+        sx={{
+          backgroundColor: 'background.paper',
+        }}
         columns={columns}
         editMode="row"
         rowModesModel={rowModesModel}
@@ -273,6 +277,6 @@ export default function Patient() {
         getDetailPanelHeight={() => 'auto'}
         autoPageSize
       />
-    </Box>
+    </Sheet>
   )
 }

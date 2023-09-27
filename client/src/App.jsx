@@ -23,6 +23,16 @@ const materialTheme = materialExtendTheme({
           default: '#0b0d0e',
           defaultChannel: '#0b0d0e',
         },
+        TableCell: {
+          border: '#32383e',
+        },
+      },
+    },
+    light: {
+      palette: {
+        TableCell: {
+          border: '#cdd7e1',
+        },
       },
     },
   },

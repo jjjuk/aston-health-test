@@ -9,12 +9,14 @@ import Drawer from '@mui/joy/Drawer'
 import { UserContext } from '../../context/UserContext'
 import { LogoutOutlined } from '@mui/icons-material'
 import ModeToggle from '../ModeToggle'
-import useLocalStorage from '../../hooks/useLocalStorage'
+import { useLocalStorage } from '../../hooks/useLocalStorage'
 
 export default function Layout({ children }) {
   const [drawer, setDrawer] = useState(false)
-  const [, setToken] = useLocalStorage('token')
+  const [token, setToken] = useLocalStorage('token')
   const user = useContext(UserContext)
+
+  console.log('logout', token)
 
   return (
     <div>

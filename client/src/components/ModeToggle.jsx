@@ -1,7 +1,7 @@
 import Button from '@mui/joy/Button'
 import DarkModeOutlined from '@mui/icons-material/DarkModeOutlined'
 import LightModeOutlined from '@mui/icons-material/LightModeOutlined'
-import useLocalStorage from '../hooks/useLocalStorage'
+import { useLocalStorage } from '../hooks/useLocalStorage'
 
 /**
  *

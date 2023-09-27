@@ -26,8 +26,12 @@ export default function EditContactInfo({
     [patientId]
   )
 
-  const [query, setQuery] = useState('')
-  const [options, setOptions] = useState([{ value: '' }])
+  const [query, setQuery] = useState(
+    contactInfo?.address ? contactInfo.address : ''
+  )
+  const [options, setOptions] = useState([
+    { value: contactInfo?.address ? contactInfo.address : '' },
+  ])
 
   useEffect(() => {
     query &&
@@ -81,12 +85,14 @@ export default function EditContactInfo({
               name="address"
               options={options}
               type="text"
-              // isOptionEqualToValue={(option, value) =>
-              //   option.unrestricted_value === value.unrestricted_value
-              // }
+              isOptionEqualToValue={(option, value) =>
+                option.value === value.value
+              }
               getOptionLabel={(option) => option.value || ''}
               onInputChange={handleQueryChange}
-              placeholder="Адрес проживания пациента..."
+              placeholder={
+                contactInfo?.address || 'Адрес проживания пациента...'
+              }
               filterOptions={filterOptions}
             />
             <Input

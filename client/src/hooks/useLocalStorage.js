@@ -1,34 +1,45 @@
-import { useCallback, useSyncExternalStore } from 'react'
-
-const subscribe = (cb) => {
-  window.addEventListener('storage', cb)
-  return () => {
-    window.removeEventListener('storage', cb)
-  }
-}
+import { useSyncExternalStore } from 'react'
 
 /**
  * Local storage hook
  * @param {string} key
  * @returns {[string, (s: string) => void]}
  */
-export default function useLocalStorage(key) {
-  const value = useSyncExternalStore(subscribe, () => localStorage.getItem(key))
-
-  const setValue = useCallback(
-    (newValue) => {
-      localStorage.setItem(key, value)
-      window.dispatchEvent(
-        new StorageEvent('storage', {
-          storageArea: window.localStorage,
-          key,
-          oldValue: value,
-          newValue,
-          url: window.location.href,
-        })
-      )
-    },
-    [key, value]
+export function useLocalStorage(key) {
+  const value = useSyncExternalStore(subscribe, () =>
+    window.localStorage.getItem(key)
   )
-  return [value, setValue]
+
+  return [
+    value,
+    function (value) {
+      return setStorageValue(key, value)
+    },
+  ]
+}
+/**
+ * Set storage with event
+ * @param {string} key
+ * @param {string} value
+ * @returns {void}
+ */
+export function setStorageValue(key, value) {
+  const prev = window.localStorage.getItem(key)
+  window.localStorage.setItem(key, value)
+  window.dispatchEvent(
+    new StorageEvent('storage', {
+      storageArea: window.localStorage,
+      key,
+      oldValue: prev,
+      newValue: value,
+      url: window.location.href,
+    })
+  )
+}
+
+function subscribe(cb) {
+  window.addEventListener('storage', cb)
+  return () => {
+    window.removeEventListener('storage', cb)
+  }
 }
