@@ -17,7 +17,7 @@ import fuzzySearch from '../../../../utils/fuzzy'
 import { AddAnalysisContext } from '../context'
 
 const filterOptions = (options, { inputValue }) =>
-  fuzzySearch(options, ['name'], inputValue)
+  fuzzySearch(options, ['lab'], inputValue)
 
 const getOptions = async () => {
   const res = await rest.get('/analysis/lab-names')
