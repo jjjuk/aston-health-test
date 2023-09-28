@@ -33,6 +33,6 @@ export async function bootstrap() {
 
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
 
-  await app.listen(cfg.port);
+  await app.listen(cfg.port, '0.0.0.0');
 }
 bootstrap();

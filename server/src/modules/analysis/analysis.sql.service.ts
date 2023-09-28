@@ -53,7 +53,7 @@ export class AnalysisSqlService {
       WHERE
         a.rowindex IN (FLOOR(@rowindex / 2), CEIL(@rowindex / 2))
     `) as [{ median: Decimal }]; //prisma конвертирует этот результат в Decimal
-    return { median: result.median.toNumber() };
+    return { median: result?.median?.toNumber() || null };
   }
 
   async modeTimeToComplete() {

@@ -17,7 +17,7 @@ export class UserService {
   }
 
   findUniqueByEmail<S extends Prisma.UserSelect>(email: string, select?: S) {
-    return this.prisma.user.findUniqueOrThrow({ where: { email }, select });
+    return this.prisma.user.findUnique({ where: { email }, select });
   }
 
   update<S extends Prisma.UserSelect>(

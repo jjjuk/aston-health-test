@@ -1,11 +1,12 @@
-import { useContext } from 'react'
-import Patient from './Patient'
+import { lazy, useContext } from 'react'
 import { PageContext } from '../../context/PageContext'
 import { pages } from '../../utils/constants'
-import Edits from './Edits'
-import Disease from './Diseases'
-import Analysis from './Analysis'
-import SqlStats from './SqlStats'
+
+const Patient = lazy(() => import('./Patient'))
+const Edits = lazy(() => import('./Edits'))
+const Disease = lazy(() => import('./Diseases'))
+const Analysis = lazy(() => import('./Analysis'))
+const SqlStats = lazy(() => import('./SqlStats'))
 
 export default function Admin() {
   const { page } = useContext(PageContext)

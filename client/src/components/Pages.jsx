@@ -1,4 +1,4 @@
-import { useContext } from 'react'
+import { Suspense, useContext } from 'react'
 
 import { UserContext } from '../context/UserContext'
 import Layout from './Layout'
@@ -12,7 +12,9 @@ export default function Pages() {
 
   return user.data ? (
     <Layout>
-      <Admin />
+      <Suspense fallback={<>Loading...</>}>
+        <Admin />
+      </Suspense>
     </Layout>
   ) : (
     <Auth />
