@@ -10,13 +10,12 @@ import { UserContext } from '../../context/UserContext'
 import { LogoutOutlined } from '@mui/icons-material'
 import ModeToggle from '../ModeToggle'
 import { useLocalStorage } from '../../hooks/useLocalStorage'
+import AppMenu from './AppMenu'
 
 export default function Layout({ children }) {
   const [drawer, setDrawer] = useState(false)
-  const [token, setToken] = useLocalStorage('token')
+  const [, setToken] = useLocalStorage('token')
   const user = useContext(UserContext)
-
-  console.log('logout', token)
 
   return (
     <div>
@@ -45,7 +44,9 @@ export default function Layout({ children }) {
           </Stack>
         </Stack>
       </Sheet>
-      <Drawer open={drawer} onClose={() => setDrawer(false)} size="md" />
+      <Drawer open={drawer} onClose={() => setDrawer(false)} size="md">
+        <AppMenu onPageChange={() => setDrawer(false)} />
+      </Drawer>
       {children}
     </div>
   )

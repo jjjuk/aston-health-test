@@ -6,11 +6,14 @@ import {
   Patch,
   Param,
   Delete,
+  UseInterceptors,
 } from '@nestjs/common';
 import { ContactInfoService } from './contact-info.service';
 import { CreateContactInfoDto } from './dto/create-contact-info.dto';
 import { UpdateContactInfoDto } from './dto/update-contact-info.dto';
+import { EditInterceptor } from 'src/common/interceptors/edit.interceptor';
 
+@UseInterceptors(EditInterceptor)
 @Controller('contact-info')
 export class ContactInfoController {
   constructor(private readonly contactInfoService: ContactInfoService) {}

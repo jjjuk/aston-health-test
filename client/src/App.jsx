@@ -13,6 +13,7 @@ import {
 } from '@mui/material/styles'
 
 import { CssVarsProvider as JoyCssVarsProvider } from '@mui/joy/styles'
+import PageContextProvider from './context/PageContext'
 
 const materialTheme = materialExtendTheme({
   colorSchemes: {
@@ -46,10 +47,12 @@ export default function App() {
     >
       <JoyCssVarsProvider>
         <UserContextProvider>
-          <SWRConfig value={{ use: [swrMiddleware] }}>
-            <CssBaseline />
-            <Pages />
-          </SWRConfig>
+          <PageContextProvider>
+            <SWRConfig value={{ use: [swrMiddleware] }}>
+              <CssBaseline />
+              <Pages />
+            </SWRConfig>
+          </PageContextProvider>
         </UserContextProvider>
       </JoyCssVarsProvider>
     </MaterialCssVarsProvider>

@@ -17,6 +17,17 @@ export class AnalysisService {
     return this.prisma.analysis.findUnique({ where: { id }, select });
   }
 
+  findAll() {
+    return this.prisma.analysis.findMany({ include: { Patient: true } });
+  }
+
+  groupByLab() {
+    return this.prisma.analysis.groupBy({
+      by: ['lab'],
+      orderBy: { _count: { id: 'desc' } },
+    });
+  }
+
   async update<S extends Prisma.AnalysisSelect>(
     id: number,
     dto: UpdateAnalysisDto,

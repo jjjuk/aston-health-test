@@ -7,11 +7,14 @@ import {
   Param,
   Delete,
   Query,
+  UseInterceptors,
 } from '@nestjs/common';
 import { DiseaseService } from './disease.service';
 import { CreateDiseaseDto } from './dto/create-disease.dto';
 import { UpdateDiseaseDto } from './dto/update-disease.dto';
+import { EditInterceptor } from '../../common/interceptors/edit.interceptor';
 
+@UseInterceptors(EditInterceptor)
 @Controller('disease')
 export class DiseaseController {
   constructor(private readonly diseaseService: DiseaseService) {}
@@ -21,9 +24,14 @@ export class DiseaseController {
     return this.diseaseService.create(createDiseaseDto);
   }
 
-  @Get()
-  find(@Query('q') query: string) {
+  @Get('/search')
+  search(@Query('q') query?: string) {
     return this.diseaseService.fulltextSearch(query);
+  }
+
+  @Get()
+  findAll() {
+    return this.diseaseService.findAll();
   }
 
   @Get(':id')

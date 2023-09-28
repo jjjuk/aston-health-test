@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useState } from 'react'
-import Modal from '@mui/joy/Modal'
 import Button from '@mui/material/Button'
 import AddIcon from '@mui/icons-material/Add'
 import EditIcon from '@mui/icons-material/Edit'
@@ -17,24 +16,12 @@ import { randomId } from '@mui/x-data-grid-generator'
 import useGet from '../../../hooks/useGet'
 import rest, { catchRestError } from '../../../utils/rest'
 import { mutate } from 'swr'
-import ContactInfo from './ContactInfo'
 import Sheet from '@mui/joy/Sheet'
 import { objectDiff } from '../../../utils/diff'
 import { omit } from 'lodash'
-import { produce } from 'immer'
-import EditContactInfo from './ContactInfo/EditContactInfo'
-import {
-  AddAnalysisContext,
-  AddDiseaseContext,
-  EditContactInfoContext,
-  initialAddAnalysis,
-  initialAddDisease,
-  initialContactInfo,
-} from './context'
-import AddDisease from './ContactInfo/AddDisease'
-import AddAnalysis from './ContactInfo/AddAnalysis'
+import PatientInfo from '../Diseases/PatientInfo'
 
-const restPath = '/patient'
+const restPath = '/analysis'
 
 function EditToolbar(props) {
   const { setRows, setRowModesModel } = props
@@ -45,12 +32,10 @@ function EditToolbar(props) {
       ...oldRows,
       {
         id,
-        name: '',
-        surname: '',
-        patronymic: '',
-        gender: '',
-        ageOnRegistration: '',
-        code: '',
+        patientId: '',
+        lab: '',
+        completedIn: '',
+        result: '',
         isNew: true,
       },
     ])
@@ -69,7 +54,7 @@ function EditToolbar(props) {
   )
 }
 
-export default function Patient() {
+export default function Analysis() {
   const { data } = useGet(restPath)
   const [rows, setRows] = useState([])
   const [rowModesModel, setRowModesModel] = useState({})
@@ -81,40 +66,6 @@ export default function Patient() {
       newIds.length > 1 ? [newIds[newIds.length - 1]] : newIds
     )
   }, [])
-
-  const [editContactInfo, setEditContactInfo] = useState(initialContactInfo)
-  const [addDisease, setAddDisease] = useState(initialAddDisease)
-  const [addAnalysis, setAddAnalysis] = useState(initialAddAnalysis)
-
-  const closeEditContactInfo = useCallback(
-    () =>
-      setEditContactInfo(
-        produce(editContactInfo, (draft) => {
-          draft.open = false
-        })
-      ),
-    [editContactInfo]
-  )
-
-  const closeAddDisease = useCallback(
-    () =>
-      setAddDisease(
-        produce(addDisease, (draft) => {
-          draft.open = false
-        })
-      ),
-    [addDisease]
-  )
-
-  const closeAddAnalysis = useCallback(
-    () =>
-      setAddAnalysis(
-        produce(addAnalysis, (draft) => {
-          draft.open = false
-        })
-      ),
-    [addAnalysis]
-  )
 
   useEffect(() => {
     data && setRows(data)
@@ -165,14 +116,13 @@ export default function Patient() {
 
   const processRowUpdate = useCallback(
     async (newRow, oldRow) => {
-      newRow.birthDate = newRow.birthDate.toISOString()
+      newRow.collectedAt = newRow.collectedAt.toISOString()
+      newRow.completedAt = newRow.completedAt.toISOString()
       let createdRow
+      // console.log('update', newRow, oldRow)
       try {
         if (newRow?.isNew) {
-          const res = await rest.post(
-            restPath,
-            omit(newRow, ['id', 'isNew', 'ageOnRegistration', 'code'])
-          )
+          const res = await rest.post(restPath, omit(newRow, ['id', 'isNew']))
           createdRow = res.data
         } else {
           const res = await rest.patch(
@@ -212,58 +162,47 @@ export default function Patient() {
       valueGetter: ({ value, row }) => (row?.isNew ? 'TBD' : value),
     },
     {
-      field: 'surname',
-      headerName: 'Фамилия',
-      width: 120,
-      editable: true,
-      preProcessEditCellProps: (params) => {
-        return { ...params.props, error: !params.props.value }
-      },
-    },
-    {
-      field: 'name',
-      headerName: 'Имя',
-      width: 120,
-      editable: true,
-      preProcessEditCellProps: (params) => {
-        return { ...params.props, error: !params.props.value }
-      },
-    },
-    {
-      field: 'patronymic',
-      headerName: 'Отчество',
-      width: 120,
-      editable: true,
-    },
-    {
-      field: 'ageOnRegistration',
-      headerName: 'Воз. Рег.',
+      field: 'patientId',
+      headerName: 'ID Пац.',
       type: 'number',
       width: 80,
-      align: 'left',
-      headerAlign: 'left',
-      editable: false,
+      editable: true,
+      preProcessEditCellProps: (params) => {
+        return { ...params.props, error: !params.props.value }
+      },
     },
     {
-      field: 'birthDate',
-      headerName: 'Родился',
+      field: 'lab',
+      headerName: 'Лаборатория',
+      width: 260,
+      editable: true,
+      preProcessEditCellProps: (params) => {
+        return { ...params.props, error: !params.props.value }
+      },
+    },
+    {
+      field: 'collectedAt',
+      headerName: 'Дата взятия',
       type: 'date',
       width: 100,
       valueGetter: ({ value }) => new Date(value),
       editable: true,
     },
     {
-      field: 'gender',
-      headerName: 'Пол',
-      width: 60,
+      field: 'completedAt',
+      headerName: 'Дата заверш.',
+      type: 'date',
+      width: 100,
+      valueGetter: ({ value }) => value && new Date(value),
       editable: true,
-      type: 'singleSelect',
-      valueOptions: [
-        { value: 1, label: 'М' },
-        { value: 2, label: 'Ж' },
-      ],
     },
-    { field: 'code', headerName: 'Код Пациента', width: 120, editable: false },
+    {
+      field: 'completedIn',
+      headerName: 'Дней до зав.',
+      type: 'number',
+      width: 100,
+      editable: true,
+    },
     {
       field: 'actions',
       type: 'actions',
@@ -317,100 +256,53 @@ export default function Patient() {
   ]
 
   return (
-    <EditContactInfoContext.Provider
-      value={{ editContactInfo, setEditContactInfo }}
+    <Sheet
+      variant="soft"
+      sx={{
+        height: 'calc(100vh - 86px)',
+        my: 1,
+        marginLeft: 'auto',
+        marginRight: 'auto',
+        maxWidth: 960,
+        '& .actions': {
+          color: 'text.secondary',
+        },
+        '& .textPrimary': {
+          color: 'text.primary',
+        },
+      }}
     >
-      <AddDiseaseContext.Provider value={{ addDisease, setAddDisease }}>
-        <AddAnalysisContext.Provider value={{ addAnalysis, setAddAnalysis }}>
-          <Modal
-            aria-labelledby="edit-contact-info"
-            aria-describedby="edit-patient-contact-info"
-            open={editContactInfo.open}
-            onClose={closeEditContactInfo}
-            sx={{
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-            }}
-          >
-            <EditContactInfo onSubmit={closeEditContactInfo} />
-          </Modal>
-          <Modal
-            aria-labelledby="add-disease"
-            aria-describedby="add disease"
-            open={addDisease.open}
-            onClose={closeAddDisease}
-            sx={{
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-            }}
-          >
-            <AddDisease onSubmit={closeAddDisease} />
-          </Modal>
-          <Modal
-            aria-labelledby="add-disease"
-            aria-describedby="add disease"
-            open={addAnalysis.open}
-            onClose={closeAddAnalysis}
-            sx={{
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-            }}
-          >
-            <AddAnalysis onSubmit={closeAddAnalysis} />
-          </Modal>
-          <Sheet
-            variant="soft"
-            sx={{
-              height: 'calc(100vh - 86px)',
-              my: 1,
-              marginLeft: 'auto',
-              marginRight: 'auto',
-              maxWidth: 960,
-              '& .actions': {
-                color: 'text.secondary',
-              },
-              '& .textPrimary': {
-                color: 'text.primary',
-              },
-            }}
-          >
-            <DataGridPro
-              rows={rows}
-              sx={{
-                backgroundColor: 'background.paper',
-              }}
-              columns={columns}
-              editMode="row"
-              rowModesModel={rowModesModel}
-              onRowModesModelChange={handleRowModesModelChange}
-              onRowEditStop={handleRowEditStop}
-              processRowUpdate={processRowUpdate}
-              onProcessRowUpdateError={handleProcessRowUpdateError}
-              rowHeight={38}
-              slots={{
-                toolbar: EditToolbar,
-              }}
-              slotProps={{
-                toolbar: { setRows, setRowModesModel },
-              }}
-              getDetailPanelContent={({ row }) => (
-                <div style={{ paddingLeft: 48 }}>
-                  <ContactInfo patientId={row.id} />
-                </div>
-              )}
-              getDetailPanelHeight={() => 'auto'}
-              detailPanelExpandedRowIds={detailPanelExpandedRowIds}
-              onDetailPanelExpandedRowIdsChange={
-                handleDetailPanelExpandedRowIdsChange
-              }
-              autoPageSize
-            />
-          </Sheet>
-        </AddAnalysisContext.Provider>
-      </AddDiseaseContext.Provider>
-    </EditContactInfoContext.Provider>
+      <DataGridPro
+        rows={rows}
+        sx={{
+          backgroundColor: 'background.paper',
+        }}
+        columns={columns}
+        editMode="row"
+        rowModesModel={rowModesModel}
+        onRowModesModelChange={handleRowModesModelChange}
+        onRowEditStop={handleRowEditStop}
+        processRowUpdate={processRowUpdate}
+        onProcessRowUpdateError={handleProcessRowUpdateError}
+        rowHeight={38}
+        slots={{
+          toolbar: EditToolbar,
+        }}
+        slotProps={{
+          toolbar: { setRows, setRowModesModel },
+        }}
+        getDetailPanelContent={({ row }) => (
+          <div style={{ paddingLeft: 48 }}>
+            <PatientInfo patient={row.Patient} />
+          </div>
+        )}
+        getDetailPanelHeight={() => 'auto'}
+        detailPanelExpandedRowIds={detailPanelExpandedRowIds}
+        onDetailPanelExpandedRowIdsChange={
+          handleDetailPanelExpandedRowIdsChange
+        }
+        autoPageSize
+      />
+    </Sheet>
   )
 }

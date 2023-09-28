@@ -1,26 +1,70 @@
-import { Fragment, useCallback, useMemo, useState } from 'react'
+import { Fragment, useCallback, useContext, useMemo } from 'react'
 import useGet from '../../../../hooks/useGet'
 import Button from '@mui/material/Button'
 import AddIcon from '@mui/icons-material/Add'
-import Modal from '@mui/joy/Modal'
-import EditContactInfo from './EditContactInfo'
-import { Stack, Table } from '@mui/joy'
+import MedicalInformation from '@mui/icons-material/MedicalInformation'
+import ScienceOutlined from '@mui/icons-material/ScienceOutlined'
+
+import Stack from '@mui/joy/Stack'
+import Table from '@mui/joy/Table'
+import Typography from '@mui/joy/Typography'
 import Edit from '@mui/icons-material/EditOutlined'
 import DeleteForever from '@mui/icons-material/DeleteForeverOutlined'
 import rest, { catchRestError } from '../../../../utils/rest'
 import { mutate } from 'swr'
+import {
+  AddAnalysisContext,
+  AddDiseaseContext,
+  EditContactInfoContext,
+} from '../context'
+import { produce } from 'immer'
 
 export default function ContactInfo({ patientId }) {
+  const { editContactInfo, setEditContactInfo } = useContext(
+    EditContactInfoContext
+  )
+  const { addAnalysis, setAddAnalysis } = useContext(AddAnalysisContext)
+  const { addDisease, setAddDisease } = useContext(AddDiseaseContext)
+
   const restPath = useMemo(
     () => `/patient/${patientId}/contact-info`,
     [patientId]
   )
   const contactInfo = useGet(restPath)
 
-  const [edit, setEdit] = useState(false)
+  const openAnalysis = useCallback(
+    () =>
+      setAddAnalysis(
+        produce(addAnalysis, (draft) => {
+          draft.open = true
+          draft.patientId = patientId
+        })
+      ),
+    [addAnalysis, setAddAnalysis, patientId]
+  )
 
-  const closeEdit = useCallback(() => setEdit(false), [setEdit])
-  const openEdit = useCallback(() => setEdit(true), [setEdit])
+  const openDisease = useCallback(
+    () =>
+      setAddDisease(
+        produce(addDisease, (draft) => {
+          draft.open = true
+          draft.patientId = patientId
+        })
+      ),
+    [addDisease, setAddDisease, patientId]
+  )
+
+  const openEdit = useCallback(
+    () =>
+      setEditContactInfo(
+        produce(editContactInfo, (draft) => {
+          draft.open = true
+          draft.contactInfo = contactInfo.data || undefined
+          draft.patientId = patientId
+        })
+      ),
+    [editContactInfo, setEditContactInfo, patientId, contactInfo.data]
+  )
   const handleDelete = useCallback(() => {
     rest
       .delete(restPath)
@@ -32,26 +76,15 @@ export default function ContactInfo({ patientId }) {
 
   return (
     <Fragment>
-      <Modal
-        aria-labelledby="edit-contact-info"
-        aria-describedby="edit-patient-contact-info"
-        open={edit}
-        onClose={closeEdit}
-        sx={{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-        }}
-      >
-        <EditContactInfo
-          patientId={patientId}
-          onSubmit={closeEdit}
-          contactInfo={contactInfo.data ? contactInfo.data : undefined}
-        />
-      </Modal>
       {contactInfo.data ? (
         <Fragment>
-          <Stack spacing={2} alignItems={'flex-start'} direction={'row'}>
+          <Stack
+            spacing={2}
+            justifyContent={'flex-start'}
+            alignItems={'center'}
+            direction={'row'}
+          >
+            <Typography>Контакты</Typography>
             <Button color="primary" startIcon={<Edit />} onClick={openEdit}>
               Редактировать
             </Button>
@@ -61,6 +94,20 @@ export default function ContactInfo({ patientId }) {
               onClick={handleDelete}
             >
               Удалить
+            </Button>
+            <Button
+              color="primary"
+              startIcon={<MedicalInformation />}
+              onClick={openDisease}
+            >
+              Добавить Заболевание
+            </Button>
+            <Button
+              color="primary"
+              startIcon={<ScienceOutlined />}
+              onClick={openAnalysis}
+            >
+              Добавить Анализ
             </Button>
           </Stack>
 
@@ -92,9 +139,25 @@ export default function ContactInfo({ patientId }) {
           </Table>
         </Fragment>
       ) : (
-        <Button color="primary" startIcon={<AddIcon />} onClick={openEdit}>
-          Добавить контактную информацию
-        </Button>
+        <Fragment>
+          <Button color="primary" startIcon={<AddIcon />} onClick={openEdit}>
+            Добавить контактную информацию
+          </Button>
+          <Button
+            color="primary"
+            startIcon={<MedicalInformation />}
+            onClick={openDisease}
+          >
+            Добавить Заболевание
+          </Button>
+          <Button
+            color="primary"
+            startIcon={<ScienceOutlined />}
+            onClick={openAnalysis}
+          >
+            Добавить Анализ
+          </Button>
+        </Fragment>
       )}
     </Fragment>
   )

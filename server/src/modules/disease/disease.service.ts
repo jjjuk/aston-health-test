@@ -19,6 +19,10 @@ export class DiseaseService {
     });
   }
 
+  findAll() {
+    return this.prisma.disease.findMany({ include: { Patient: true } });
+  }
+
   findUnique<S extends Prisma.DiseaseSelect>(id: number, select?: S) {
     return this.prisma.disease.findUnique({ where: { id }, select });
   }

@@ -8,19 +8,32 @@ import {
   Delete,
   Query,
   ForbiddenException,
+  UseInterceptors,
 } from '@nestjs/common';
 import { AnalysisService } from './analysis.service';
 import { CreateAnalysisDto } from './dto/create-analysis.dto';
 import { UpdateAnalysisDto } from './dto/update-analysis.dto';
 import { AnalysisSqlService } from './analysis.sql.service';
 import { AnalysisTimeStatsQuery, TimeStatEnum } from './query/time-stats.query';
+import { EditInterceptor } from '../../common/interceptors/edit.interceptor';
 
+@UseInterceptors(EditInterceptor)
 @Controller('analysis')
 export class AnalysisController {
   constructor(
     private readonly analysisService: AnalysisService,
     private readonly analysisSqlService: AnalysisSqlService,
   ) {}
+
+  @Get()
+  findAll() {
+    return this.analysisService.findAll();
+  }
+
+  @Get('/lab-names')
+  groupByLab() {
+    return this.analysisService.groupByLab();
+  }
 
   @Post()
   create(@Body() dto: CreateAnalysisDto) {
